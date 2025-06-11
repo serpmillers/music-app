@@ -1,5 +1,5 @@
 import Library from "../Pages/Library"
-import Browser from "../Pages/Browser"
+import Browser from "../Pages/Browse"
 import Playlists from "../Pages/Playlist"
 
 /* Logic goes here */ 

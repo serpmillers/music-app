@@ -6,11 +6,36 @@ body {
   padding: 0;
   height: 100vh;
   background-image: url('/Background.jpg');
-  backdrop-filter: blur(9px);
+  backdrop-filter: contrast(1.5) brightness(0.9) saturate(1.2) grayscale(0.4) blur(10px);
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
   font-family: sans-serif;
+}
+
+::-webkit-scrollbar {
+    width: 4.5px;
+}
+
+::-webkit-scrollbar-button {
+    width: 0px;
+    height: 0px;
+}
+
+::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0); 
+    -webkit-border-radius: 10px;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    border-radius: 7px;
+    background: #d1d5dccc; 
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.5); 
+}
+
+.component {
+  @apply bg-gray-900/40 backdrop-blur-3xl rounded-2xl;
 }
 
 ::-webkit-scrollbar-button {
