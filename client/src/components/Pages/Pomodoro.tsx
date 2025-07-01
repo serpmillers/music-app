@@ -75,9 +75,9 @@ const Pomodoro = () => {
   const seconds = (secondsLeft % 60).toString().padStart(2, "0");
 
   return (
-    <div className="p-2 w-full flex-col gap-2 h-[40%] flex">
-      <div className="flex flex-col h-full min-h-0 component mt-2 items-center justify-center p-6">
-        <span className="text-lg text-gray-300 font-semibold mb-2">
+    <div className="w-full flex-col gap-2 flex-1 flex">
+      <div className="flex flex-col h-full min-h-0 component items-center justify-center p-6">
+        <span className="text-lg text-white font-semibold mb-2">
           {mode === "pomodoro" && "Pomodoro"}
           {mode === "short" && "Short Break"}
           {mode === "long" && "Long Break"}
@@ -87,7 +87,7 @@ const Pomodoro = () => {
         </div>
         <div className="flex gap-4 mb-4">
           <button
-            className="rounded-2xl px-4 py-2 text-white bg-gray-900 hover:bg-gray-800"
+            className="cursor-pointer rounded-2xl px-4 py-2 text-white bg-gray-900 hover:bg-gray-800 transition-colors duration-300"
             onClick={() => setIsRunning((prev) => !prev)}
           >
             {secondsLeft === pomodoroTime && !isRunning && mode === "pomodoro"
@@ -97,7 +97,7 @@ const Pomodoro = () => {
               : "Resume"}
           </button>
           <button
-            className="rounded-2xl px-4 py-2 text-white bg-gray-900 hover:bg-gray-800"
+            className="cursor-pointer rounded-2xl px-4 py-2 text-white bg-gray-900 hover:bg-gray-800 transition-colors duration-300"
             onClick={resetTimer}
           >
             Reset

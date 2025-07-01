@@ -1,27 +1,19 @@
-import Library from "../Pages/Library"
-import Browser from "../Pages/Browse"
-import Playlists from "../Pages/Playlist"
+import Home from "../Pages/Home";
+import Browse from "../Pages/Browse";
+import TaskList from "../Pages/TaskList";
 
-/* Logic goes here */ 
-
-const ActiveComponent = {
-  library: Library,
-  browser: Browser,
-  playlists: Playlists,
+type Props = {
+  activePage: "home" | "browse" | "task"
 }
 
-const Active = () => {
+const Active = ({activePage}: Props) => {
   return (
-    <div className="flex flex-col grow items-center justify-center">
-      
-      
-
-
-      
-      <h1 className="text-2xl font-bold mb-4">Active Component</h1>
-      <p className="text-gray-700">This is the active component content.</p>
+    <div className="flex flex-col grow component min-h-0">
+      {activePage === "home" && <Home />}
+      {activePage === "browse" && <Browse />}
+      {activePage === "task" && <TaskList />}
     </div>
-  )
-}
+  );
+};
 
-export default Active
+export default Active;
