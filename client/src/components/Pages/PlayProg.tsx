@@ -21,7 +21,7 @@ const PlayProg = () => {
 
   return (
     <div className="p-2 flex-col gap-2 flex-1 flex overflow-hidden items-center component m-2">
-      <div className="relative w-48 h-48 rounded-lg mb-4 group">
+      <div className="relative w-48 h-48 rounded-lg m-2 group">
         <img
           src={song.art}
           alt="Song Art"

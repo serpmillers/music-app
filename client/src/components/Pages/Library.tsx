@@ -1,4 +1,5 @@
 import stack from '../../assets/spotifyButtons/stack.png';
+import like from '../../assets/spotifyButtons/like.png';
 import PlaylistCard from '../StaticComps/PlaylistCard';
 
 const Sidebar = () => {
@@ -12,7 +13,38 @@ const Sidebar = () => {
             <span>Library</span>
           </div>
 
-          <div className='flex-1 min-h-0 overflow-hidden overflow-y-auto'>
+          <div className='flex-1 min-h-0 overflow-hidden overflow-y-auto flex flex-col gap-3'>
+            {/* Example playlists */}
+            <PlaylistCard
+              artUrl={like}
+              name="Liked Songs"
+              madeby="ScaredBeing"
+            />
+            <PlaylistCard
+              artUrl={"https://images.stockcake.com/public/f/3/4/f34aafcd-59a7-44b0-932f-668d82341c43_large/sci-fi-squad-ready-stockcake.jpg"}
+              name="Some Songs"
+              madeby="ScaredBeing"
+            />
+            <PlaylistCard
+              artUrl={"https://images.stockcake.com/public/f/3/4/f34aafcd-59a7-44b0-932f-668d82341c43_large/sci-fi-squad-ready-stockcake.jpg"}
+              name="Some Songs"
+              madeby="ScaredBeing"
+            />
+            <PlaylistCard
+              artUrl={"https://images.stockcake.com/public/f/3/4/f34aafcd-59a7-44b0-932f-668d82341c43_large/sci-fi-squad-ready-stockcake.jpg"}
+              name="Some Songs"
+              madeby="ScaredBeing"
+            />
+            <PlaylistCard
+              artUrl={"https://images.stockcake.com/public/f/3/4/f34aafcd-59a7-44b0-932f-668d82341c43_large/sci-fi-squad-ready-stockcake.jpg"}
+              name="Some Songs"
+              madeby="ScaredBeing"
+            />
+            <PlaylistCard
+              artUrl={"https://images.stockcake.com/public/f/3/4/f34aafcd-59a7-44b0-932f-668d82341c43_large/sci-fi-squad-ready-stockcake.jpg"}
+              name="Some Songs"
+              madeby="ScaredBeing"
+            />
             
           </div>
 

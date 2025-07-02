@@ -1,15 +1,25 @@
-const Playlist = () => {
-  return (
-    <div className="playlist-card">
-      <h2>Playlist Title</h2>
-      <p>Description of the playlist goes here.</p>
-      <ul>
-        <li>Song 1</li>
-        <li>Song 2</li>
-        <li>Song 3</li>
-      </ul>
-    </div>
-  )
+import React from "react";
+
+interface PlaylistCardProps {
+  artUrl: string;
+  name: string;
+  madeby: string;
 }
 
-export default Playlist
+const PlaylistCard: React.FC<PlaylistCardProps> = ({ artUrl, name, madeby }) => {
+  return (
+    <div className="flex items-center w-full max-w-md p-4 rounded-xl backdrop-blur-2xl shadow-md transition hover:bg-white/10">
+      <img
+        src={artUrl}
+        alt={name}
+        className="w-10 h-10 rounded-lg object-cover mr-4 shadow"
+      />
+      <div className="flex flex-col justify-center">
+        <span className="text-lg font-semibold text-white drop-shadow-sm">{name}</span>
+        <span className="text-sm text-gray-200 drop-shadow-sm">{madeby}</span>
+      </div>
+    </div>
+  );
+};
+
+export default PlaylistCard;
