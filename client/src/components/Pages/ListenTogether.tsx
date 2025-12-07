@@ -2,7 +2,7 @@ import mic from '../../assets/spotifyButtons/mic.png';
 
 const ListenTogether = () => {
   return (
-    <div className="flex flex-col h-[120px] min-h-0 component overflow-hidden">
+    <div className="flex flex-col min-h-0 component overflow-hidden flex-1">
       <div className="p-2 flex flex-col h-full">
         
         

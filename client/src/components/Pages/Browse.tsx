@@ -1,6 +1,7 @@
 import GenreCard from "../StaticComps/GenreCard";
 import AlbumCard from "../StaticComps/AlbumCard";
 import { useState } from "react";
+import HorizontalScroller from "../StaticComps/HorizontalScroller";
 
 const Browse = () => {
   const [search, setSearch] = useState("");
@@ -30,28 +31,28 @@ const Browse = () => {
         />
       </div>
 
-      <div className="flex-1 flex flex-col min-h-0 overflow-y-auto overflow-hidden gap-6">
+      <div className="flex-1 flex flex-col min-h-0 overflow-y-auto overflow-hidden gap-6 p-5">
+        <div>
+          <h3 className="text-xl font-semibold mb-2">Trending Albums</h3>
+          <HorizontalScroller>
+            {albums.map((album) => (
+              <div key={album.title} className="flex-shrink-0 w-48">
+                <AlbumCard album={album} />
+              </div>
+            ))}
+          </HorizontalScroller>
+        </div>
         <div>
           <h3 className="text-xl font-semibold mb-2">Genres</h3>
-          <div className="flex gap-2 overflow-x-auto pb-2">
+          <div className="grid grid-cols-3 gap-4 overflow-x-auto pb-2">
             {genres.map((genre) => (
-              <div key={genre} className="flex-shrink-0 w-40">
+              <div key={genre} className="flex-shrink-0 flex-1">
                 <GenreCard name={genre} />
               </div>
             ))}
           </div>
         </div>
         
-        <div>
-          <h3 className="text-xl font-semibold mb-2">Trending Albums</h3>
-          <div className="flex gap-2 overflow-x-auto pb-2">
-            {albums.map((album) => (
-              <div key={album.title} className="flex-shrink-0 w-48">
-                <AlbumCard album={album} />
-              </div>
-            ))}
-          </div>
-        </div>
       </div>
       
     </div>

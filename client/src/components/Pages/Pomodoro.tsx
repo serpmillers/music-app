@@ -17,6 +17,7 @@ const Pomodoro = () => {
   const [isRunning, setIsRunning] = useState(false);
   const [mode, setMode] = useState<"pomodoro" | "short" | "long">("pomodoro");
   const [cycle, setCycle] = useState(0);
+  const [currentTask, setCurrentTask] = useState<any>(null);
 
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -47,20 +48,40 @@ const Pomodoro = () => {
     // eslint-disable-next-line
   }, [isRunning]);
 
-  const handleTimerEnd = () => {
-    setIsRunning(false);
-    if (mode === "pomodoro") {
-      if (cycle + 1 === cyclesBeforeLongBreak) {
-        setMode("long");
+  // Listen for pomodoro:start event from TaskList
+  useEffect(() => {
+    const handlePomodoroStart = (event: any) => {
+      const task = event.detail?.task;
+      if (task) {
+        setCurrentTask(task);
+        setMode("pomodoro");
+        setIsRunning(true);
         setCycle(0);
-      } else {
-        setMode("short");
-        setCycle((c) => c + 1);
       }
+    };
+
+    window.addEventListener("pomodoro:start", handlePomodoroStart as EventListener);
+    return () => {
+      window.removeEventListener("pomodoro:start", handlePomodoroStart as EventListener);
+    };
+  }, []);
+
+  const handleTimerEnd = () => {
+  setIsRunning(false);
+  if (mode === "pomodoro") {
+    // Clear task when pomodoro finishes
+    setCurrentTask(null);
+    if (cycle + 1 === cyclesBeforeLongBreak) {
+      setMode("long");
+      setCycle(0);
     } else {
-      setMode("pomodoro");
+      setMode("short");
+      setCycle((c) => c + 1);
     }
-  };
+  } else {
+    setMode("pomodoro");
+  }
+};
 
   const resetTimer = () => {
     if (mode === "pomodoro") setSecondsLeft(pomodoroTime);
@@ -75,7 +96,7 @@ const Pomodoro = () => {
   const seconds = (secondsLeft % 60).toString().padStart(2, "0");
 
   return (
-    <div className="w-full flex-col gap-2 flex-1 flex">
+    <div className="w-full h-[270px] flex-col gap-2 flex">
       <div className="flex flex-col h-full min-h-0 component items-center justify-center p-6">
         <span className="text-lg text-white font-semibold mb-2">
           {mode === "pomodoro" && "Pomodoro"}
@@ -122,7 +143,7 @@ const Pomodoro = () => {
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
 export default Pomodoro;
