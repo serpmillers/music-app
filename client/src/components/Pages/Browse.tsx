@@ -20,21 +20,21 @@ const Browse = () => {
   ];
 
   return (
-    <div className="flex flex-col p-4 gap-6 h-full min-h-0">
-      <div className="flex justify-center">
+    <div className="flex flex-col pb-3 pt-0 h-full min-h-0">
+      <div className="flex justify-center p-2 pb-[11px] rounded-t-xl border-gray-800/0 border-b-gray-700 border-2">
         <input
           type="text"
           value={search}
           onChange={e => setSearch(e.target.value)}
           placeholder="Search music, artists, albums..."
-          className="w-full max-w-md px-4 py-2 rounded-full bg-gray-800 opacity-70 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-white transition-all duration-300 hover:opacity-80 focus:opacity-100"
+          className="w-full max-w-md px-4 py-2 rounded-full bg-gray-800 opacity-70 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-white ring-gray-700 ring-2 transition-all duration-300 hover:opacity-80 focus:opacity-100"
         />
       </div>
 
-      <div className="flex-1 flex flex-col min-h-0 overflow-y-auto overflow-hidden gap-6 p-5">
+      <div className="flex-1 flex flex-col min-h-0 overflow-y-auto overflow-hidden gap-6 p-5 px-4">
         <div>
           <h3 className="text-xl font-semibold mb-2">Trending Albums</h3>
-          <HorizontalScroller>
+          <HorizontalScroller className="p-4">
             {albums.map((album) => (
               <div key={album.title} className="flex-shrink-0 w-48">
                 <AlbumCard album={album} />
@@ -44,7 +44,7 @@ const Browse = () => {
         </div>
         <div>
           <h3 className="text-xl font-semibold mb-2">Genres</h3>
-          <div className="grid grid-cols-3 gap-4 overflow-x-auto pb-2">
+          <div className="grid grid-cols-3 gap-4 overflow-x-auto pb-2 p-4">
             {genres.map((genre) => (
               <div key={genre} className="flex-shrink-0 flex-1">
                 <GenreCard name={genre} />

@@ -47,19 +47,25 @@ const Home = () => {
 
   return (
     <div className="w-full h-full flex flex-col overflow-y-auto p-4 gap-8">
-      {/* Quick Access Playlists Section */}
-      <div>
+      
+      {/* Quick access playlists section, will also be used for last played*/}
+      {/* <div>
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-2xl font-bold text-white">Last Played</h2>
+          <a href="#" className="text-sm text-gray-400 hover:text-white">Show all</a>
+        </div>
         <div className="grid gap-4 grid-cols-3 pb-2">
+          
           {quickAccess.map((playlist) => (
-            <div key={playlist.title} className="flex-shrink-0 flex-1">
+            <div key={playlist.title} className="flex-shrink-0 flex-1 ">
               <PlaylistCard artUrl={playlist.artUrl} name={playlist.title} madeby={playlist.description} />
             </div>
           ))}
         </div>
-      </div>
+      </div> */}
 
-      {/* Last Played Section */}
-      <div>
+      {/* Last played section */}
+      {/* <div>
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-2xl font-bold text-white">Last Played</h2>
           <a href="#" className="text-sm text-gray-400 hover:text-white">Show all</a>
@@ -71,16 +77,25 @@ const Home = () => {
             </div>
           ))}
         </HorizontalScroller>
+      </div> */}
+
+      {/* Tasks that aren't complete */}
+      <div>
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-bold">Tasks</h2>
+          {/* <a href="#" className="text-sm text-gray-400 hover:text-white">Show all</a> */}
+        </div>
+        
       </div>
 
       {/* Recommended For You - normalize everything and render AlbumCard for consistent tiles */}
       <div>
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-2xl font-bold text-white">Recommended For You</h2>
-          <a href="#" className="text-sm text-gray-400 hover:text-white">Show all</a>
+          <h2 className="text-xl font-bold">Recommended For You</h2>
+          {/* <a href="#" className="text-sm text-gray-400 hover:text-white">Show all</a> */}
         </div>
 
-        <HorizontalScroller>
+        <HorizontalScroller className="p-4">
           {recommendedMixed.map((item, idx) => {
             const albumLike = normalizeToAlbum(item);
             return (
@@ -91,6 +106,7 @@ const Home = () => {
           })}
         </HorizontalScroller>
       </div>
+
     </div>
   );
 };

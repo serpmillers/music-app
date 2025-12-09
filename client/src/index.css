@@ -64,7 +64,7 @@ body {
 }
 
 .component {
-  @apply bg-gray-900/40 backdrop-blur-3xl rounded-2xl;
+  @apply bg-gray-900/40 backdrop-blur-3xl rounded-2xl border-gray-700 border-2;
 }
 
 ::-webkit-scrollbar-button {

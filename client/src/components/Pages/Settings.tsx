@@ -39,7 +39,7 @@ const Settings = () => {
       {/* Main Settings Container */}
       <div className="flex-1 rounded-2xl p-8 min-h-0 overflow-y-auto">
         {/* Header */}
-        <h1 className="text-4xl font-bold text-white mb-8">Settings</h1>
+        <h1 className="text-3xl font-bold text-white mb-8">Settings</h1>
 
         {/* Appearance Section */}
         <div className="flex flex-col gap-6">

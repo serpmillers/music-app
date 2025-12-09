@@ -22,7 +22,8 @@ const PlayProg = () => {
   const transitionWidth = 2; // percent
 
   return (
-    <div className="flex-1 flex overflow-hidden rounded-2xl m-2 relative group">
+    <div className="flex-1 flex overflow-hidden rounded-2xl m-1 relative group border-gray-700 border-2">
+      
       {/* Album Art Background - full coverage */}
       <img
         src={song.art}

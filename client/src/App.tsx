@@ -1,12 +1,12 @@
 import MiniLibrary from "./components/Pages/Library"
 import PlayProg from "./components/Pages/PlayProg"
-import Ads from "./components/StaticComps/Title"
+import SongTitle from "./components/StaticComps/Title"
 import MainOptions from "./components/Pages/MainOptions"
 import Active from "./components/StaticComps/Active"
 import Greeting from "./components/StaticComps/Greetings"
 import ListenTogether from "./components/Pages/ListenTogether"
 import Pomodoro from "./components/Pages/Pomodoro"
-import Settings from "./components/Pages/Settings"
+// import Settings from "./components/Pages/Settings"
 import {useState} from "react";
 
 type PageType = "home" | "browse" | "task" | "settings";
@@ -42,17 +42,15 @@ function App() {
 
   return (
     <div className="flex flex-row h-screen w-screen text-gray-300 overflow-hidden overflow-y-auto">
-      <div className="flex flex-col w-[80%] h-full backdrop-blur-3xl min-h-0 min-w-0">
-        <div className="backdrop-blur-3xl rounded-2xl p-1 bg-gray-800/20 m-2">
-          <Ads />
-        </div>
-        <div className="flex flex-row flex-1 backdrop-blur-3xl rounded-2xl p-1 bg-gray-800/20 m-2 min-h-0 min-w-0">
-          <div className="flex-col overflow-hidden w-[20%] flex m-2 gap-4">
+      <div className="flex flex-col w-[80%] h-full backdrop-blur-3xl min-h-0 min-w-0 ">
+        
+        <div className="flex flex-row flex-1 backdrop-blur-3xl rounded-[21px] p-1 bg-gray-900/40 m-2 min-h-0 min-w-0 border-gray-700 border-2">
+          <div className="flex-col overflow-hidden w-[20%] flex  gap-1">
             <MainOptions setPage={navigateTo} />
             <ListenTogether />
             <Pomodoro />
           </div>
-          <div className="flex-1 flex w-[80%] flex-col m-2 min-h-0 min-w-0">
+          <div className="flex-1 flex w-[80%] flex-col ml-1 min-h-0 min-w-0">
             <Greeting 
               index={0} 
               onPrev={goBack} 
@@ -62,9 +60,14 @@ function App() {
             <Active activePage={activePage} slideDirection="down" />
           </div>
         </div>
+
+        <div className="backdrop-blur-3xl rounded-[21px] p-1 bg-gray-900/40 m-2 border-gray-700 border-2">
+          <SongTitle />
+        </div>
+
       </div>
 
-      <div className="w-[20%] flex flex-col backdrop-blur-3xl rounded-2xl p-1 bg-gray-800/20 m-2">
+      <div className="w-[20%] flex flex-col backdrop-blur-3xl rounded-[21px] bg-gray-900/40 m-2 border-gray-700 border-2">
         <MiniLibrary />
         <PlayProg />
       </div>

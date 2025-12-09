@@ -73,16 +73,16 @@ const HorizontalScroller = ({ children, className = "", scrollByPx }: Props) => 
   if (!children) return null;
 
   return (
-    <div className="relative w-full group">
+    <div className="relative w-full group border-2 border-gray-700 rounded-2xl pr-4 backdrop-blur-3xl">
       {/* Vignette overlays only when there's overflow */}
       {isOverflowing && (
         <>
           
       {/* Left vignette: appears only when left scroll is possible */}
       {canScrollLeft && (
-        <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-16 z-10">
+        <div className="pointer-events-none absolute left-0 top-0 h-full w-16 z-10">
           <div
-            className="h-full w-full"
+            className="h-full w-full rounded-l-2xl"
             style={{
               background:
                 "linear-gradient(90deg, rgba(17,24,39,0.94) 0%, rgba(17,24,39,0.6) 30%, rgba(17,24,39,0.2) 60%, transparent 100%)",
@@ -93,9 +93,9 @@ const HorizontalScroller = ({ children, className = "", scrollByPx }: Props) => 
 
       {/* Right vignette: appears only when right scroll is possible */}
       {canScrollRight && (
-        <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-16 z-10">
+        <div className="pointer-events-none absolute right-0 top-0 h-full w-16 z-10">
           <div
-            className="h-full w-full"
+            className="h-full w-full rounded-r-2xl"
             style={{
               background:
                 "linear-gradient(270deg, rgba(17,24,39,0.94) 0%, rgba(17,24,39,0.6) 30%, rgba(17,24,39,0.2) 60%, transparent 100%)",

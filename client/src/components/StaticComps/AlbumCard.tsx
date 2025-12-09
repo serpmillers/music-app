@@ -10,7 +10,7 @@ type AlbumCardProps = {
 
 const AlbumCard = ({ album }: AlbumCardProps) => {
   return (
-    <div className="bg-gray-800 hover:bg-gray-700 text-white p-4 rounded-xl cursor-pointer transition-all duration-300 hover:scale-105 active:scale-95">
+    <div className="bg-gray-800 hover:bg-gray-700 text-white p-4 rounded-xl cursor-pointer transition-all duration-300 hover:scale-105 active:scale-95 border-gray-700 border-2">
       <img
         src={album.coverUrl}
         alt={`${album.title} cover`}
