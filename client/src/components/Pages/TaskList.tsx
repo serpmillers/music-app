@@ -1,517 +1,399 @@
-import React, { useEffect, useMemo, useState } from "react";
-
-type ID = string;
-
-type Project = {
-  id: ID;
-  name: string;
-  createdAt: number;
-};
+import React, { useState } from "react";
 
 type Task = {
-  id: ID;
-  title: string;
-  notes?: string;
-  projectId: ID | null;
-  completed: boolean;
+  id: string;
+  name: string;
+  description: string;
   priority: "low" | "medium" | "high";
-  due?: string;
-  createdAt: number;
-  updatedAt?: number;
-};
-
-const STORAGE_KEY = "musicapp.tasks.v1";
-const makeId = () => `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
-const defaultProjectId = "inbox";
-
-const defaultData = () => ({
-  projects: [
-    { id: defaultProjectId, name: "Inbox", createdAt: Date.now() },
-    { id: makeId(), name: "Work", createdAt: Date.now() },
-    { id: makeId(), name: "Personal", createdAt: Date.now() },
-  ] as Project[],
-  tasks: [
-    {
-      id: makeId(),
-      title: "Design the new playlist layout",
-      notes: "Sketch grid + list concepts. Use darker vignette.",
-      projectId: defaultProjectId,
-      completed: false,
-      priority: "medium",
-      due: undefined,
-      createdAt: Date.now() - 1000 * 60 * 60 * 24 * 2,
-    } as Task,
-    {
-      id: makeId(),
-      title: "Write README for music-app",
-      notes: "Describe dev setup and features.",
-      projectId: defaultProjectId,
-      completed: false,
-      priority: "low",
-      due: undefined,
-      createdAt: Date.now() - 1000 * 60 * 60 * 6,
-    } as Task,
-  ] as Task[],
-});
-
-const loadFromStorage = () => {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return defaultData();
-    return JSON.parse(raw);
-  } catch (e) {
-    console.error("Could not read tasks from storage", e);
-    return defaultData();
-  }
-};
-
-const saveToStorage = (data: any) => {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-  } catch (e) {
-    console.error("Could not save tasks to storage", e);
-  }
+  completed: boolean;
 };
 
 const TaskList = () => {
-  const [data, setData] = useState(() => loadFromStorage());
-  const [selectedProject, setSelectedProject] = useState<ID | "all">(defaultProjectId);
-  const [query, setQuery] = useState("");
-  const [activeTab, setActiveTab] = useState<"active" | "completed">("active");
-  const [selectedTaskId, setSelectedTaskId] = useState<ID | null>(null);
-  const [newProjectName, setNewProjectName] = useState("");
-  const [newTaskTitle, setNewTaskTitle] = useState("");
-  const [expandedProjects, setExpandedProjects] = useState(true);
-  const [expandedTasks, setExpandedTasks] = useState(true);
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+  const [tempTask, setTempTask] = useState<Task | null>(null);
+  const [expandedPriorities, setExpandedPriorities] = useState({
+    high: true,
+    medium: true,
+    low: true,
+  });
+  const [expandedCompleted, setExpandedCompleted] = useState(false);
 
-  useEffect(() => {
-    saveToStorage(data);
-  }, [data]);
-
-  const projects: Project[] = data.projects;
-  const tasks: Task[] = data.tasks;
-
-  const visibleTasks = useMemo(() => {
-    let list = tasks.slice();
-
-    if (selectedProject !== "all") {
-      list = list.filter((t) => t.projectId === selectedProject);
-    }
-
-    const isCompleted = activeTab === "completed";
-    list = list.filter((t) => t.completed === isCompleted);
-
-    if (query.trim()) {
-      const q = query.toLowerCase();
-      list = list.filter(
-        (t) =>
-          t.title.toLowerCase().includes(q) ||
-          (t.notes || "").toLowerCase().includes(q)
-      );
-    }
-
-    list.sort((a, b) => b.createdAt - a.createdAt);
-    return list;
-  }, [tasks, selectedProject, query, activeTab]);
-
-  const selectedTask = tasks.find((t) => t.id === selectedTaskId) || null;
-
-  const addProject = (name: string) => {
-    if (!name.trim()) return;
-    const p: Project = { id: makeId(), name: name.trim(), createdAt: Date.now() };
-    setData((prev) => ({ ...prev, projects: [p, ...prev.projects] }));
-    setNewProjectName("");
-    setSelectedProject(p.id);
-  };
-
-  const renameProject = (id: ID, name: string) => {
-    if (!name.trim()) return;
-    setData((prev: any) => ({
-      ...prev,
-      projects: prev.projects.map((p: Project) => (p.id === id ? { ...p, name } : p)),
-    }));
-  };
-
-  const removeProject = (id: ID) => {
-    if (id === defaultProjectId) return alert("Cannot delete Inbox.");
-    if (!confirm("Delete project and move tasks to Inbox?")) return;
-    setData((prev: any) => {
-      const projects = prev.projects.filter((p: Project) => p.id !== id);
-      const tasks = prev.tasks.map((t: Task) => (t.projectId === id ? { ...t, projectId: defaultProjectId } : t));
-      return { ...prev, projects, tasks };
-    });
-    setSelectedProject(defaultProjectId);
-  };
-
-  const addTask = (title: string, projectId: ID = (selectedProject === "all" ? defaultProjectId : selectedProject) as ID) => {
-    if (!title.trim()) return;
-    const t: Task = {
-      id: makeId(),
-      title: title.trim(),
-      notes: "",
-      projectId,
-      completed: false,
+  const startNewTask = () => {
+    setTempTask({
+      id: `temp-${Date.now()}`,
+      name: "",
+      description: "",
       priority: "medium",
-      createdAt: Date.now(),
+      completed: false,
+    });
+  };
+
+  const saveTask = () => {
+    if (!tempTask || !tempTask.name.trim()) return;
+    const newTask: Task = {
+      ...tempTask,
+      id: tempTask.id.startsWith('temp-') ? `${Date.now()}` : tempTask.id,
     };
-    setData((prev: any) => ({ ...prev, tasks: [t, ...prev.tasks] }));
-    setNewTaskTitle("");
+    setTasks([...tasks, newTask]);
+    setTempTask(null);
+    setSelectedTask(null);
   };
 
-  const updateTask = (id: ID, patch: Partial<Task>) => {
-    setData((prev: any) => ({
-      ...prev,
-      tasks: prev.tasks.map((t: Task) => (t.id === id ? { ...t, ...patch, updatedAt: Date.now() } : t)),
-    }));
+  const cancelTask = () => {
+    setTempTask(null);
   };
 
-  const deleteTask = (id: ID) => {
-    if (!confirm("Delete this task?")) return;
-    setData((prev: any) => ({ ...prev, tasks: prev.tasks.filter((t: Task) => t.id !== id) }));
-    if (selectedTaskId === id) setSelectedTaskId(null);
-  };
-
-  const toggleComplete = (id: ID) => {
-    const t = tasks.find((x) => x.id === id);
-    if (!t) return;
-    updateTask(id, { completed: !t.completed });
-  };
-
-  const startPomodoroForTask = (task: Task) => {
-    try {
-      window.dispatchEvent(new CustomEvent("pomodoro:start", { detail: { task } }));
-    } catch (e) {
-      console.warn("Could not dispatch pomodoro:start event", e);
+  const deleteTask = (id: string) => {
+    setTasks(tasks.filter((t) => t.id !== id));
+    if (selectedTask?.id === id) {
+      setSelectedTask(null);
     }
-    localStorage.setItem("musicapp.currentPomodoroTask", JSON.stringify(task));
   };
 
-  const projectName = (id: ID | null) => projects.find((p) => p.id === id)?.name || "Inbox";
-  const projectCount = (id: ID | null) => tasks.filter((t) => t.projectId === id && !t.completed).length;
+  const toggleTaskCompletion = (id: string) => {
+    setTasks(tasks.map((t) => (t.id === id ? { ...t, completed: !t.completed } : t)));
+  };
+
+  // Separate completed and active tasks
+  const activeTasks = tasks.filter((t) => !t.completed);
+  const completedTasks = tasks.filter((t) => t.completed);
+
+  // Get tasks grouped by priority (only active tasks)
+  const highPriorityTasks = activeTasks.filter((t) => t.priority === "high");
+  const mediumPriorityTasks = activeTasks.filter((t) => t.priority === "medium");
+  const lowPriorityTasks = activeTasks.filter((t) => t.priority === "low");
+
+  const PrioritySection = ({
+    title,
+    tasks: sectionTasks,
+    priority,
+  }: {
+    title: string;
+    tasks: Task[];
+    priority: "high" | "medium" | "low";
+  }) => {
+    if (sectionTasks.length === 0) return null;
+
+    return (
+      <div className="flex flex-col gap-3">
+        <button
+          onClick={() =>
+            setExpandedPriorities((prev) => ({
+              ...prev,
+              [priority]: !prev[priority],
+            }))
+          }
+          className="flex items-center gap-2 text-sm font-bold text-gray-300 uppercase tracking-wider hover:text-white transition-colors duration-200"
+        >
+          <span>{expandedPriorities[priority] ? "▼" : "▶"}</span>
+          <span>{title}</span>
+          <span className="text-xs font-normal">({sectionTasks.length})</span>
+        </button>
+
+        {expandedPriorities[priority] && (
+          <div className="flex flex-col gap-2">
+            {sectionTasks.map((task) => (
+              <div
+                key={task.id}
+                className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-800/50 transition-all duration-200 group"
+              >
+                {/* Checkbox Toggle */}
+                <button
+                  onClick={() => toggleTaskCompletion(task.id)}
+                  className="w-6 h-6 rounded-lg border-2 border-blue-500 flex items-center justify-center flex-shrink-0 hover:bg-blue-500/20 transition-all duration-200 active:scale-90"
+                  title="Toggle completion"
+                >
+                  {task.completed && <span className="text-blue-400">✓</span>}
+                </button>
+
+                {/* Task Info */}
+                <button
+                  onClick={() => setSelectedTask(task)}
+                  className="flex-1 min-w-0 overflow-hidden text-left"
+                >
+                  <div className="flex items-baseline gap-2">
+                    <p className="text-gray-200 font-medium whitespace-nowrap">{task.name}</p>
+                    {task.description && (
+                      <p className="text-gray-500 text-sm truncate flex-1">
+                        {task.description}
+                      </p>
+                    )}
+                  </div>
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  };
 
   return (
-    <div className="flex h-full min-h-0 gap-4 p-4">
-      {/* Sidebar */}
-      <div className="w-56 component rounded-2xl p-4 flex flex-col gap-4 min-h-0 overflow-y-auto">
-        {/* Projects Container */}
-        <div className="flex flex-col gap-2">
-          <button
-            onClick={() => setExpandedProjects(!expandedProjects)}
-            className="flex items-center justify-between text-sm font-bold text-white uppercase tracking-wider hover:text-gray-300 transition"
-          >
-            <span>📁 Projects</span>
-            <span className="text-xs">{expandedProjects ? "▼" : "▶"}</span>
-          </button>
+    <div className="flex h-full min-h-0 p-4 gap-4">
+      {/* Main Tasks List Container */}
+      <div className="flex-1 rounded-2xl p-6 min-h-0 overflow-y-auto">
+        <div className="flex flex-col gap-6">
+          {/* Priority High Section */}
+          <PrioritySection
+            title="Priority: High"
+            tasks={highPriorityTasks}
+            priority="high"
+          />
 
-          {expandedProjects && (
-            <div className="flex flex-col gap-2 ml-2">
-              {/* All Tasks option */}
+          {/* Priority Medium Section */}
+          <PrioritySection
+            title="Priority: Medium"
+            tasks={mediumPriorityTasks}
+            priority="medium"
+          />
+
+          {/* Priority Low Section */}
+          <PrioritySection
+            title="Priority: Low"
+            tasks={lowPriorityTasks}
+            priority="low"
+          />
+
+          {/* Empty State or Add Task Button */}
+          {tasks.length === 0 ? (
+            <div className="text-center py-12">
+              <div className="text-gray-400 mb-4">No tasks yet</div>
               <button
-                onClick={() => setSelectedProject("all")}
-                className={`text-left px-2 py-1 rounded text-sm transition-colors ${
-                  selectedProject === "all"
-                    ? "bg-blue-600 text-white font-semibold"
-                    : "text-gray-300 hover:bg-gray-800/50"
-                }`}
+                onClick={startNewTask}
+                className="flex items-center gap-2 text-blue-400 hover:text-blue-300 transition mx-auto cursor-pointer"
               >
-                All Tasks
+                <span className="text-lg">+</span>
+                <span>Add a task</span>
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={startNewTask}
+              className="mt-4 flex items-center gap-2 px-4 py-3 text-blue-400 hover:text-blue-300 hover:bg-gray-800/30 rounded-lg transition cursor-pointer"
+            >
+              <span className="text-lg">+</span>
+              <span>Add a task</span>
+            </button>
+          )}
+
+          {/* Completed Tasks Section */}
+          {completedTasks.length > 0 && (
+            <div className="flex flex-col gap-3 mt-6 pt-6 border-t border-gray-700">
+              <button
+                onClick={() => setExpandedCompleted(!expandedCompleted)}
+                className="flex items-center gap-2 text-sm font-bold text-gray-300 uppercase tracking-wider hover:text-white transition"
+              >
+                <span>{expandedCompleted ? "▼" : "▶"}</span>
+                <span>Done</span>
+                <span className="text-xs font-normal">({completedTasks.length})</span>
               </button>
 
-              {/* Project list */}
-              {projects.map((p) => (
-                <button
-                  key={p.id}
-                  onClick={() => setSelectedProject(p.id)}
-                  onContextMenu={(e) => {
-                    e.preventDefault();
-                    const name = prompt("Rename project", p.name);
-                    if (name && name.trim()) renameProject(p.id, name.trim());
-                  }}
-                  className={`text-left px-2 py-1 rounded text-sm transition-colors group flex items-center justify-between ${
-                    selectedProject === p.id
-                      ? "bg-blue-600 text-white font-semibold"
-                      : "text-gray-300 hover:bg-gray-800/50"
-                  }`}
-                  title="Right-click to rename"
-                >
-                  <span className="flex-1 truncate">{p.name}</span>
-                  {p.id !== defaultProjectId && (
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        removeProject(p.id);
-                      }}
-                      className="opacity-0 group-hover:opacity-100 text-xs ml-1"
+              {expandedCompleted && (
+                <div className="flex flex-col gap-2">
+                  {completedTasks.map((task) => (
+                    <div
+                      key={task.id}
+                      className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-800/50 transition group"
                     >
-                      ×
-                    </button>
-                  )}
-                </button>
-              ))}
+                      {/* Checkbox Toggle */}
+                      <button
+                        onClick={() => toggleTaskCompletion(task.id)}
+                        className="w-6 h-6 rounded-lg bg-blue-600 border-2 border-blue-500 flex items-center justify-center flex-shrink-0 hover:bg-blue-700 transition"
+                        title="Toggle completion"
+                      >
+                        <span className="text-white">✓</span>
+                      </button>
 
-              {/* Add project form */}
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  addProject(newProjectName);
-                }}
-                className="flex gap-1 mt-2"
-              >
-                <input
-                  value={newProjectName}
-                  onChange={(e) => setNewProjectName(e.target.value)}
-                  placeholder="New project"
-                  className="flex-1 bg-gray-800/50 border border-gray-700 rounded px-2 py-1 text-xs text-white focus:outline-none focus:border-blue-500"
-                />
-                <button className="px-2 py-1 bg-blue-600 rounded text-xs font-semibold hover:bg-blue-700">
-                  +
-                </button>
-              </form>
-            </div>
-          )}
-        </div>
+                      {/* Task Info */}
+                      <button
+                        onClick={() => setSelectedTask(task)}
+                        className="flex-1 min-w-0 overflow-hidden text-left cursor-pointer"
+                      >
+                        <div className="flex items-baseline gap-2">
+                          <p className="text-gray-400 font-medium whitespace-nowrap line-through">{task.name}</p>
+                          {task.description && (
+                            <p className="text-gray-600 text-sm truncate flex-1 line-through">
+                              {task.description}
+                            </p>
+                          )}
+                        </div>
+                      </button>
 
-        {/* Tasks Container */}
-        <div className="border-t border-gray-700/50 pt-4 flex flex-col gap-2">
-          <button
-            onClick={() => setExpandedTasks(!expandedTasks)}
-            className="flex items-center justify-between text-sm font-bold text-white uppercase tracking-wider hover:text-gray-300 transition"
-          >
-            <span>✓ Tasks</span>
-            <span className="text-xs">{expandedTasks ? "▼" : "▶"}</span>
-          </button>
-
-          {expandedTasks && (
-            <div className="flex flex-col gap-2 ml-2">
-              {/* Show independent tasks (tasks not in any project or in Inbox) */}
-              {tasks
-                .filter((t) => !t.completed && (t.projectId === defaultProjectId || t.projectId === null))
-                .slice(0, 5)
-                .map((t) => (
-                  <button
-                    key={t.id}
-                    onClick={() => setSelectedTaskId(t.id)}
-                    className="text-left px-2 py-1 rounded text-xs text-gray-300 hover:bg-gray-800/50 truncate transition-colors"
-                    title={t.title}
-                  >
-                    {t.title}
-                  </button>
-                ))}
-
-              {tasks.filter((t) => !t.completed && (t.projectId === defaultProjectId || t.projectId === null)).length === 0 && (
-                <div className="text-xs text-gray-500 italic">No tasks</div>
+                      {/* Priority Badge */}
+                      <div
+                        className={`px-2 py-1 rounded text-xs font-semibold flex-shrink-0 ${
+                          task.priority === "high"
+                            ? "bg-red-500/20 text-red-300"
+                            : task.priority === "medium"
+                              ? "bg-yellow-500/20 text-yellow-300"
+                              : "bg-green-500/20 text-green-300"
+                        }`}
+                      >
+                        {task.priority}
+                      </div>
+                    </div>
+                  ))}
+                </div>
               )}
             </div>
           )}
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="flex-1 component rounded-2xl p-6 flex flex-col gap-4 min-h-0">
-        {/* Header */}
-        <div className="flex items-center justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-bold text-white">
-              {selectedProject === "all" ? "All Tasks" : projectName(selectedProject)}
-            </h1>
-            <p className="text-sm text-gray-400">
-              {visibleTasks.length} {activeTab === "active" ? "active" : "completed"}{" "}
-              {visibleTasks.length === 1 ? "task" : "tasks"}
-            </p>
+      {/* Side Panel - Add Task */}
+      {tempTask && (
+        <div className="w-96 component rounded-2xl p-6 flex flex-col gap-6 min-h-0">
+          {/* Header */}
+          <div className="flex items-center justify-between">
+            <h2 className="text-2xl font-bold text-white">New Task</h2>
+            <button
+              onClick={cancelTask}
+              className="text-gray-400 hover:text-white transition text-xl"
+              title="Close"
+            >
+              ×
+            </button>
           </div>
 
-          {/* Add Task Input */}
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              addTask(newTaskTitle);
-            }}
-            className="flex gap-2"
-          >
+          {/* Task Name Input */}
+          <div className="flex flex-col gap-2">
+            <label className="text-xs font-semibold text-gray-300 uppercase tracking-wider">
+              Task Title
+            </label>
             <input
-              value={newTaskTitle}
-              onChange={(e) => setNewTaskTitle(e.target.value)}
-              placeholder="Add task..."
-              className="bg-gray-800/50 border border-gray-700 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500"
+              type="text"
+              value={tempTask.name}
+              onChange={(e) =>
+                setTempTask({ ...tempTask, name: e.target.value })
+              }
+              placeholder="Enter task title..."
+              className="bg-gray-800/50 border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50 transition"
+              autoFocus
             />
-            <button className="px-4 py-2 bg-blue-600 rounded text-sm font-semibold hover:bg-blue-700">
-              Add
-            </button>
-          </form>
-        </div>
-
-        {/* Tabs & Search */}
-        <div className="flex items-center justify-between gap-4 border-b border-gray-700/50 pb-4">
-          <div className="flex gap-4">
-            <button
-              onClick={() => setActiveTab("active")}
-              className={`text-sm font-semibold pb-2 transition-colors ${
-                activeTab === "active"
-                  ? "text-blue-500 border-b-2 border-blue-500"
-                  : "text-gray-400 hover:text-gray-300"
-              }`}
-            >
-              Active
-            </button>
-            <button
-              onClick={() => setActiveTab("completed")}
-              className={`text-sm font-semibold pb-2 transition-colors ${
-                activeTab === "completed"
-                  ? "text-blue-500 border-b-2 border-blue-500"
-                  : "text-gray-400 hover:text-gray-300"
-              }`}
-            >
-              Completed
-            </button>
           </div>
 
-          <input
-            type="text"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search tasks..."
-            className="bg-gray-800/50 border border-gray-700 rounded px-3 py-1 text-sm text-white focus:outline-none focus:border-blue-500"
-          />
-        </div>
-
-        {/* Tasks Table */}
-        <div className="overflow-y-auto flex-1 min-h-0">
-          {visibleTasks.length === 0 && (
-            <div className="text-center text-gray-400 py-8">
-              No {activeTab === "active" ? "active" : "completed"} tasks
-            </div>
-          )}
-
-          <div className="space-y-2">
-            {visibleTasks.map((t: Task) => (
-              <div
-                key={t.id}
-                onClick={() => setSelectedTaskId(t.id)}
-                className={`flex items-center gap-3 px-4 py-3 rounded-lg cursor-pointer transition-colors ${
-                  selectedTaskId === t.id
-                    ? "bg-blue-600/20 border border-blue-500/50"
-                    : "hover:bg-gray-800/50"
-                } ${t.completed ? "opacity-60" : ""}`}
-              >
-                <input
-                  type="checkbox"
-                  checked={t.completed}
-                  onChange={(e) => {
-                    e.stopPropagation();
-                    toggleComplete(t.id);
-                  }}
-                  className="w-5 h-5 rounded cursor-pointer"
-                />
-
-                <div className="flex-1 min-w-0">
-                  <div className="text-sm font-semibold text-white truncate">{t.title}</div>
-                  {t.due && (
-                    <div className="text-xs text-gray-400">
-                      Due {new Date(t.due).toLocaleDateString()}
-                    </div>
-                  )}
-                </div>
-
-                <div className="flex items-center gap-1">
-                  <span
-                    className={`text-xs px-2 py-1 rounded font-semibold ${
-                      t.priority === "high"
-                        ? "bg-red-600/30 text-red-300"
-                        : t.priority === "medium"
-                        ? "bg-yellow-600/30 text-yellow-300"
-                        : "bg-gray-700/30 text-gray-300"
-                    }`}
-                  >
-                    {t.priority.charAt(0).toUpperCase() + t.priority.slice(1)}
-                  </span>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      startPomodoroForTask(t);
-                    }}
-                    className="px-2 py-1 text-xs bg-blue-600 rounded hover:bg-blue-700 text-white font-semibold"
-                  >
-                    Start
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Details Panel */}
-      {selectedTask && (
-        <div className="w-96 component rounded-2xl p-6 flex flex-col gap-4 min-h-0">
-          <div>
-            <h2 className="text-lg font-bold text-white">{selectedTask.title}</h2>
-            <p className="text-xs text-gray-400">
-              {projectName(selectedTask.projectId)} •{" "}
-              {new Date(selectedTask.createdAt).toLocaleDateString()}
-            </p>
-          </div>
-
-          <div className="border-t border-gray-700/50 pt-4">
-            <label className="text-xs font-semibold text-gray-300 block mb-2">
-              Notes
+          {/* Description Input */}
+          <div className="flex flex-col gap-2">
+            <label className="text-xs font-semibold text-gray-300 uppercase tracking-wider">
+              Description
             </label>
             <textarea
-              value={selectedTask.notes || ""}
+              value={tempTask.description}
               onChange={(e) =>
-                updateTask(selectedTask.id, { notes: e.target.value })
+                setTempTask({ ...tempTask, description: e.target.value })
               }
-              className="w-full bg-gray-800/50 border border-gray-700 rounded p-2 text-sm text-white focus:outline-none focus:border-blue-500 resize-none"
-              rows={5}
+              placeholder="Enter task description..."
+              rows={4}
+              className="bg-gray-800/50 border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50 transition resize-none"
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            <label className="flex flex-col text-xs gap-1">
-              <span className="font-semibold text-gray-300">Due Date</span>
-              <input
-                type="date"
-                value={selectedTask.due || ""}
-                onChange={(e) =>
-                  updateTask(selectedTask.id, {
-                    due: e.target.value || undefined,
-                  })
-                }
-                className="bg-gray-800/50 border border-gray-700 rounded px-2 py-1 text-white text-sm focus:outline-none focus:border-blue-500"
-              />
+          {/* Priority Selector */}
+          <div className="flex flex-col gap-2">
+            <label className="text-xs font-semibold text-gray-300 uppercase tracking-wider">
+              Priority
             </label>
-
-            <label className="flex flex-col text-xs gap-1">
-              <span className="font-semibold text-gray-300">Priority</span>
-              <select
-                value={selectedTask.priority}
-                onChange={(e) =>
-                  updateTask(selectedTask.id, {
-                    priority: e.target.value as any,
-                  })
-                }
-                className="bg-gray-800/50 border border-gray-700 rounded px-2 py-1 text-white text-sm focus:outline-none focus:border-blue-500"
-              >
-                <option value="low">Low</option>
-                <option value="medium">Medium</option>
-                <option value="high">High</option>
-              </select>
-            </label>
+            <select
+              value={tempTask.priority}
+              onChange={(e) =>
+                setTempTask({
+                  ...tempTask,
+                  priority: e.target.value as "low" | "medium" | "high",
+                })
+              }
+              className="bg-gray-800/50 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50 transition"
+            >
+              <option value="low">Low</option>
+              <option value="medium">Medium</option>
+              <option value="high">High</option>
+            </select>
           </div>
 
-          <div className="flex gap-2 pt-2">
+          {/* Action Buttons */}
+          <div className="flex gap-3 pt-4 mt-auto">
             <button
-              onClick={() => startPomodoroForTask(selectedTask)}
-              className="flex-1 px-3 py-2 bg-blue-600 rounded text-sm font-semibold hover:bg-blue-700"
+              onClick={saveTask}
+              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg transition flex items-center justify-center gap-2"
             >
-              Start Pomodoro
+              <span>✓</span>
+              <span>Save</span>
             </button>
             <button
-              onClick={() =>
-                deleteTask(selectedTask.id)
-              }
-              className="flex-1 px-3 py-2 bg-red-600/30 text-red-300 rounded text-sm font-semibold hover:bg-red-600/50"
+              onClick={cancelTask}
+              className="flex-1 bg-gray-700 hover:bg-gray-600 text-white font-semibold py-3 rounded-lg transition flex items-center justify-center gap-2"
             >
-              Delete
+              <span>×</span>
+              <span>Cancel</span>
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Side Panel - Task Details */}
+      {selectedTask && !tempTask && (
+        <div className="w-96 component rounded-2xl p-6 flex flex-col gap-6 min-h-0 overflow-y-auto">
+          {/* Header with Close Button */}
+          <div className="flex items-center justify-between">
+            <h2 className="text-2xl font-bold text-white">{selectedTask.name}</h2>
+            <button
+              onClick={() => setSelectedTask(null)}
+              className="text-gray-400 hover:text-white transition text-xl"
+              title="Close"
+            >
+              ×
+            </button>
+          </div>
+
+          {/* Priority Badge */}
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-semibold text-gray-300 uppercase tracking-wider">
+              Priority:
+            </span>
+            <span
+              className={`px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider ${
+                selectedTask.priority === "high"
+                  ? "bg-red-500/20 text-red-300"
+                  : selectedTask.priority === "medium"
+                    ? "bg-yellow-500/20 text-yellow-300"
+                    : "bg-green-500/20 text-green-300"
+              }`}
+            >
+              {selectedTask.priority}
+            </span>
+          </div>
+
+          {/* Description */}
+          <div className="flex flex-col gap-2">
+            <label className="text-xs font-semibold text-gray-300 uppercase tracking-wider">
+              Description
+            </label>
+            <div className="bg-gray-800/50 border border-gray-700 rounded-lg px-4 py-3 text-gray-200 min-h-24 whitespace-pre-wrap break-words">
+              {selectedTask.description || <span className="text-gray-500 italic">No description</span>}
+            </div>
+          </div>
+
+          {/* Task Info */}
+          <div className="flex flex-col gap-2 text-xs text-gray-400">
+            <div>
+              <span className="font-semibold">Task ID:</span> {selectedTask.id}
+            </div>
+            <div>
+              <span className="font-semibold">Created:</span> {new Date(parseInt(selectedTask.id)).toLocaleDateString()}
+            </div>
+            <div>
+              <span className="font-semibold">Status:</span> {selectedTask.completed ? "Completed" : "Active"}
+            </div>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex gap-3 pt-4 mt-auto">
+            <button
+              onClick={() => deleteTask(selectedTask.id)}
+              className="flex-1 bg-red-600 hover:bg-red-700 text-white font-semibold py-3 rounded-lg transition flex items-center justify-center gap-2"
+            >
+              <span>🗑</span>
+              <span>Delete</span>
             </button>
           </div>
         </div>

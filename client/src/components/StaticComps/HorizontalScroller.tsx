@@ -112,7 +112,7 @@ const HorizontalScroller = ({ children, className = "", scrollByPx }: Props) => 
         onClick={() => doScroll("left")}
         title="Scroll left"
         className={
-          "absolute left-2 top-1/2 -translate-y-1/2 z-30 w-8 h-8 rounded-full flex items-center justify-center shadow-md transition-opacity duration-150 bg-gray-800/60 hover:bg-gray-700 " +
+          "absolute left-2 top-1/2 -translate-y-1/2 z-30 w-8 h-8 rounded-full flex items-center justify-center shadow-md transition-all duration-200 bg-gray-800/60 hover:bg-gray-700 hover:scale-110 active:scale-90 " +
           (canScrollLeft ? "opacity-0 group-hover:opacity-100 group-hover:pointer-events-auto" : "opacity-0 pointer-events-none")
         }
       >
@@ -127,7 +127,7 @@ const HorizontalScroller = ({ children, className = "", scrollByPx }: Props) => 
         onClick={() => doScroll("right")}
         title="Scroll right"
         className={
-          "absolute right-2 top-1/2 -translate-y-1/2 z-30 w-8 h-8 rounded-full flex items-center justify-center shadow-md transition-opacity duration-150 bg-gray-800/60 hover:bg-gray-700 " +
+          "absolute right-2 top-1/2 -translate-y-1/2 z-30 w-8 h-8 rounded-full flex items-center justify-center shadow-md transition-all duration-200 bg-gray-800/60 hover:bg-gray-700 hover:scale-110 active:scale-90 " +
           (canScrollRight ? "opacity-0 group-hover:opacity-100 group-hover:pointer-events-auto" : "opacity-0 pointer-events-none")
         }
       >

@@ -27,7 +27,7 @@ const Browse = () => {
           value={search}
           onChange={e => setSearch(e.target.value)}
           placeholder="Search music, artists, albums..."
-          className="w-full max-w-md px-4 py-2 rounded-full bg-gray-800 opacity-70 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-white"
+          className="w-full max-w-md px-4 py-2 rounded-full bg-gray-800 opacity-70 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-white transition-all duration-300 hover:opacity-80 focus:opacity-100"
         />
       </div>
 

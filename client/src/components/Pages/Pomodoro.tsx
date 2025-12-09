@@ -108,7 +108,7 @@ const Pomodoro = () => {
         </div>
         <div className="flex gap-4 mb-4">
           <button
-            className="cursor-pointer rounded-2xl px-4 py-2 text-white bg-gray-900 hover:bg-gray-800 transition-colors duration-300"
+            className="cursor-pointer rounded-2xl px-4 py-2 text-white bg-gray-900 hover:bg-gray-800 transition-all duration-300 hover:scale-105 active:scale-95"
             onClick={() => setIsRunning((prev) => !prev)}
           >
             {secondsLeft === pomodoroTime && !isRunning && mode === "pomodoro"
@@ -118,7 +118,7 @@ const Pomodoro = () => {
               : "Resume"}
           </button>
           <button
-            className="cursor-pointer rounded-2xl px-4 py-2 text-white bg-gray-900 hover:bg-gray-800 transition-colors duration-300"
+            className="cursor-pointer rounded-2xl px-4 py-2 text-white bg-gray-900 hover:bg-gray-800 transition-all duration-300 hover:scale-105 active:scale-95"
             onClick={resetTimer}
           >
             Reset

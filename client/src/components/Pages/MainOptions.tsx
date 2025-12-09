@@ -29,7 +29,7 @@ const MainOptions = ({ setPage }: Props) => {
           onClick={() => setPage("task")}
         >
           <img src={queue} alt="Browse" className="w-5 h-5 mx-3" />
-          <span>Task</span>
+          <span>Tasks</span>
         </div>
       </div>
     </div>
