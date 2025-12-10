@@ -41,10 +41,10 @@ function App() {
   };
 
   return (
-    <div className="flex flex-row h-screen w-screen text-gray-300 overflow-hidden overflow-y-auto">
-      <div className="flex flex-col w-[80%] h-full backdrop-blur-3xl min-h-0 min-w-0 ">
+    <div className="flex flex-row h-screen w-screen text-gray-300 overflow-hidden overflow-y-auto backdrop-blur-sm backdrop-saturate-150 backdrop-brightness-90 backdrop-grayscale-40">
+      <div className="flex flex-col w-[80%] h-full  min-h-0 min-w-0 ">
         
-        <div className="flex flex-row flex-1 backdrop-blur-3xl rounded-[21px] p-1 bg-gray-900/40 m-2 min-h-0 min-w-0 border-gray-700 border-2">
+        <div className="flex flex-row flex-1 backdrop-blur-xl rounded-[21px] p-1 bg-gray-900/40 m-2 min-h-0 min-w-0 border-gray-700 border-2">
           <div className="flex-col overflow-hidden w-[20%] flex  gap-1">
             <MainOptions setPage={navigateTo} />
             <ListenTogether />
@@ -61,13 +61,13 @@ function App() {
           </div>
         </div>
 
-        <div className="backdrop-blur-3xl rounded-[21px] p-1 bg-gray-900/40 m-2 border-gray-700 border-2">
+        <div className="backdrop-blur-xl rounded-[21px] p-1 bg-gray-900/40 m-2 border-gray-700 border-2">
           <SongTitle />
         </div>
 
       </div>
-
-      <div className="w-[20%] flex flex-col backdrop-blur-3xl rounded-[21px] bg-gray-900/40 m-2 border-gray-700 border-2">
+      
+      <div className="w-[20%] flex flex-col backdrop-blur-xl rounded-[21px] bg-gray-900/40 m-2 border-gray-700 border-2">
         <MiniLibrary />
         <PlayProg />
       </div>

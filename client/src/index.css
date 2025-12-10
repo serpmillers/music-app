@@ -26,7 +26,8 @@ body {
   padding: 0;
   height: 100vh;
   background-image: url('/Background.jpg');
-  backdrop-filter: contrast(1.5) brightness(0.9) saturate(1.2) grayscale(0.4) blur(10px);
+  /* background-color: #131212; */
+  /* backdrop-filter: contrast(1.5) brightness(0.9) saturate(1.2) grayscale(0.4) blur(10px); */
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
