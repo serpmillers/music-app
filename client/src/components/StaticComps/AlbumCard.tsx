@@ -6,11 +6,15 @@ type Album = {
 
 type AlbumCardProps = {
   album: Album;
+  onClick?: () => void;
 };
 
-const AlbumCard = ({ album }: AlbumCardProps) => {
+const AlbumCard = ({ album, onClick }: AlbumCardProps) => {
   return (
-    <div className="bg-gray-800 hover:bg-gray-700 text-white p-4 rounded-xl cursor-pointer transition-all duration-300 hover:scale-105 active:scale-95 border-gray-700 border-2">
+    <div 
+      onClick={onClick}
+      className="bg-gray-800 hover:bg-gray-700 text-white p-4 rounded-xl cursor-pointer transition-all duration-300 hover:scale-105 active:scale-95 border-gray-700 border-2"
+    >
       <img
         src={album.coverUrl}
         alt={`${album.title} cover`}

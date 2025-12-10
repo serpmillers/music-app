@@ -6,22 +6,25 @@ import Active from "./components/StaticComps/Active"
 import Greeting from "./components/StaticComps/Greetings"
 import ListenTogether from "./components/Pages/ListenTogether"
 import Pomodoro from "./components/Pages/Pomodoro"
-// import Settings from "./components/Pages/Settings"
 import {useState} from "react";
 
-type PageType = "home" | "browse" | "task" | "settings";
+type PageType = "home" | "browse" | "task" | "settings" | "playlist";
 
 function App() {
   const [activePage, setActivePage] = useState<PageType>("home");
   const [pageHistory, setPageHistory] = useState<PageType[]>(["home"]);
   const [historyIndex, setHistoryIndex] = useState(0);
+  const [playlistData, setPlaylistData] = useState<any>(null);
 
-  const navigateTo = (page: PageType) => {
+  const navigateTo = (page: PageType, data?: any) => {
     const newHistory = pageHistory.slice(0, historyIndex + 1);
     newHistory.push(page);
     setPageHistory(newHistory);
     setHistoryIndex(newHistory.length - 1);
     setActivePage(page);
+    if(page === "playlist" && data) {
+      setPlaylistData(data);
+    }
   };
 
   const goBack = () => {
@@ -57,7 +60,7 @@ function App() {
               onNext={goForward} 
               onSettings={() => navigateTo("settings")} 
             />
-            <Active activePage={activePage} slideDirection="down" />
+            <Active activePage={activePage} slideDirection="down" playlistData={playlistData}/>
           </div>
         </div>
 

@@ -1,29 +1,33 @@
 import { useState } from "react";
 import AlbumCard from "../StaticComps/AlbumCard";
-import PlaylistCard from "../StaticComps/PlaylistCard";
+// import PlaylistCard from "../StaticComps/PlaylistCard";
 import HorizontalScroller from "../StaticComps/HorizontalScroller";
 
-const Home = () => {
+type HomeProps = {
+  onPlaylistClick?: (data: any) => void;
+};
+
+const Home = ({onPlaylistClick}: HomeProps) => {
   const placeholderCover =
     "https://images.stockcake.com/public/f/3/4/f34aafcd-59a7-44b0-932f-668d82341c43_large/sci-fi-squad-ready-stockcake.jpg";
 
-  const quickAccess = [
-    { title: "Your Daily Mix", description: "Your favorite songs", artUrl: placeholderCover },
-    { title: "New Releases", description: "Latest drops", artUrl: placeholderCover },
-    { title: "Chill Vibes", description: "Relaxing tunes", artUrl: placeholderCover },
-    { title: "Workout Mix", description: "High energy", artUrl: placeholderCover },
-    { title: "Late Night", description: "Dark & deep", artUrl: placeholderCover },
-    { title: "Focus Mode", description: "Concentration", artUrl: placeholderCover },
-  ];
+  // const quickAccess = [
+  //   { title: "Your Daily Mix", description: "Your favorite songs", artUrl: placeholderCover },
+  //   { title: "New Releases", description: "Latest drops", artUrl: placeholderCover },
+  //   { title: "Chill Vibes", description: "Relaxing tunes", artUrl: placeholderCover },
+  //   { title: "Workout Mix", description: "High energy", artUrl: placeholderCover },
+  //   { title: "Late Night", description: "Dark & deep", artUrl: placeholderCover },
+  //   { title: "Focus Mode", description: "Concentration", artUrl: placeholderCover },
+  // ];
 
-  const lastPlayed = [
-    { title: "Midnight Vibes", artist: "DJ Chill", coverUrl: placeholderCover },
-    { title: "Neon Nights", artist: "Synthwave Corp", coverUrl: placeholderCover },
-    { title: "Unplugged", artist: "Acoustic Soul", coverUrl: placeholderCover },
-    { title: "Sunset Drive", artist: "Roadtrip", coverUrl: placeholderCover },
-    { title: "Dreamscape", artist: "Night Owl", coverUrl: placeholderCover },
-    { title: "Electric Pulse", artist: "Pulsewave", coverUrl: placeholderCover },
-  ];
+  // const lastPlayed = [
+  //   { title: "Midnight Vibes", artist: "DJ Chill", coverUrl: placeholderCover },
+  //   { title: "Neon Nights", artist: "Synthwave Corp", coverUrl: placeholderCover },
+  //   { title: "Unplugged", artist: "Acoustic Soul", coverUrl: placeholderCover },
+  //   { title: "Sunset Drive", artist: "Roadtrip", coverUrl: placeholderCover },
+  //   { title: "Dreamscape", artist: "Night Owl", coverUrl: placeholderCover },
+  //   { title: "Electric Pulse", artist: "Pulsewave", coverUrl: placeholderCover },
+  // ];
 
   // Mixed recommended items: playlists + songs + albums
   const recommendedMixed: Array<any> = [
@@ -45,6 +49,17 @@ const Home = () => {
     return { title, artist, coverUrl: cover };
   };
 
+  const handleAlbumClick = (item: any) => {
+    const normalized = normalizeToAlbum(item);
+    const playlistData = {
+      title: normalized.title,
+      type: item.type === "album" ? "Album" : "Playlist",
+      creator: normalized.artist,
+      duration: `${Math.floor(Math.random() * 2) + 1} hr ${Math.floor(Math.random() * 60)} min`,
+      coverArt: normalized.coverUrl,
+    };
+    onPlaylistClick?.(playlistData);
+  }
   return (
     <div className="w-full h-full flex flex-col overflow-y-auto p-4 gap-8">
       
@@ -100,7 +115,10 @@ const Home = () => {
             const albumLike = normalizeToAlbum(item);
             return (
               <div key={idx} className="flex-shrink-0 w-48">
-                <AlbumCard album={albumLike} />
+                <AlbumCard 
+                  album={albumLike}
+                  onClick={() => handleAlbumClick(item)}
+                />
               </div>
             );
           })}

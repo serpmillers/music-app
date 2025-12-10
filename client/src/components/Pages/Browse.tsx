@@ -1,9 +1,13 @@
+import { useState } from "react";
 import GenreCard from "../StaticComps/GenreCard";
 import AlbumCard from "../StaticComps/AlbumCard";
-import { useState } from "react";
 import HorizontalScroller from "../StaticComps/HorizontalScroller";
 
-const Browse = () => {
+type BrowseProps = {
+  onPlaylistClick?: (data: any) => void;
+};
+
+const Browse = ({onPlaylistClick}: BrowseProps) => {
   const [search, setSearch] = useState("");
   const genres = ["Pop", "Lo-Fi", "Rock", "Classical", "EDM", "Jazz", "Hip-Hop", "Indie", "Country", "Reggae"];
   const albums = [
@@ -18,6 +22,18 @@ const Browse = () => {
     { title: "Retro Future", artist: "Vaporwave", coverUrl: "https://images.stockcake.com/public/f/3/4/f34aafcd-59a7-44b0-932f-668d82341c43_large/sci-fi-squad-ready-stockcake.jpg" },
     { title: "Acoustic Mornings", artist: "Sunny Side", coverUrl: "https://images.stockcake.com/public/f/3/4/f34aafcd-59a7-44b0-932f-668d82341c43_large/sci-fi-squad-ready-stockcake.jpg" },
   ];
+
+  const handleAlbumClick = (album: any) => {
+    const playlistData = {
+      title: album.title,
+      type: "Album",
+      creator: album.artist,
+      songCount: Math.floor(Math.random() * 15) + 8,
+      duration: `${Math.floor(Math.random() * 2) + 1} hr ${Math.floor(Math.random() * 60)} min`,
+      coverArt: album.coverUrl
+    };
+    onPlaylistClick?.(playlistData);
+  };
 
   return (
     <div className="flex flex-col pb-3 pt-0 h-full min-h-0">
@@ -37,7 +53,10 @@ const Browse = () => {
           <HorizontalScroller className="p-4">
             {albums.map((album) => (
               <div key={album.title} className="flex-shrink-0 w-48">
-                <AlbumCard album={album} />
+                <AlbumCard
+                  album={album}
+                  onClick={() => handleAlbumClick(album)}
+                />
               </div>
             ))}
           </HorizontalScroller>

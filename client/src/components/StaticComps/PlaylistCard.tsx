@@ -4,11 +4,15 @@ interface PlaylistCardProps {
   artUrl: string;
   name: string;
   madeby: string;
+  onClick?: () => void;
 }
 
-const PlaylistCard: React.FC<PlaylistCardProps> = ({ artUrl, name, madeby }) => {
+const PlaylistCard: React.FC<PlaylistCardProps> = ({ artUrl, name, madeby, onClick }) => {
   return (
-    <div className="flex items-center w-full max-w-md p-4 rounded-xl backdrop-blur-2xl shadow-md transition hover:bg-white/20 border-gray-700 border-2">
+    <div 
+      onClick={onClick}
+      className="flex items-center w-full max-w-md p-4 rounded-xl backdrop-blur-2xl shadow-md transition hover:bg-white/20 border-gray-700 border-2 cursor-pointer"
+    >
       <img
         src={artUrl}
         alt={name}
