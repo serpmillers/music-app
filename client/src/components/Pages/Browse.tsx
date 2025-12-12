@@ -10,6 +10,7 @@ type BrowseProps = {
 const Browse = ({onPlaylistClick}: BrowseProps) => {
   const [search, setSearch] = useState("");
   const genres = ["Pop", "Lo-Fi", "Rock", "Classical", "EDM", "Jazz", "Hip-Hop", "Indie", "Country", "Reggae"];
+  // will later fetch contents using an algorithm
   const albums = [
     { title: "Midnight Vibes", artist: "DJ Chill", coverUrl: "https://images.stockcake.com/public/f/3/4/f34aafcd-59a7-44b0-932f-668d82341c43_large/sci-fi-squad-ready-stockcake.jpg" },
     { title: "Neon Nights", artist: "Synthwave Corp", coverUrl: "https://images.stockcake.com/public/f/3/4/f34aafcd-59a7-44b0-932f-668d82341c43_large/sci-fi-squad-ready-stockcake.jpg" },
@@ -23,6 +24,7 @@ const Browse = ({onPlaylistClick}: BrowseProps) => {
     { title: "Acoustic Mornings", artist: "Sunny Side", coverUrl: "https://images.stockcake.com/public/f/3/4/f34aafcd-59a7-44b0-932f-668d82341c43_large/sci-fi-squad-ready-stockcake.jpg" },
   ];
 
+  // generates album data (will later just fetch values from backend database)
   const handleAlbumClick = (album: any) => {
     const playlistData = {
       title: album.title,

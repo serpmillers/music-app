@@ -57,7 +57,6 @@ const HorizontalScroller = ({ children, className = "", scrollByPx }: Props) => 
       window.removeEventListener("resize", onResize);
       imgListeners.forEach((rm) => rm());
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const doScroll = (dir: "left" | "right") => {
@@ -74,11 +73,11 @@ const HorizontalScroller = ({ children, className = "", scrollByPx }: Props) => 
 
   return (
     <div className="relative w-full group border-2 border-gray-700 rounded-2xl pr-4 backdrop-blur-3xl">
-      {/* Vignette overlays only when there's overflow */}
+      {/* vignette overlays only when there's overflow */}
       {isOverflowing && (
         <>
           
-      {/* Left vignette: appears only when left scroll is possible */}
+      {/* left vignette appears only when left scroll is possible */}
       {canScrollLeft && (
         <div className="pointer-events-none absolute left-0 top-0 h-full w-16 z-10">
           <div
@@ -91,7 +90,7 @@ const HorizontalScroller = ({ children, className = "", scrollByPx }: Props) => 
         </div>
       )}
 
-      {/* Right vignette: appears only when right scroll is possible */}
+      {/* same as above but for right */}
       {canScrollRight && (
         <div className="pointer-events-none absolute right-0 top-0 h-full w-16 z-10">
           <div
@@ -106,7 +105,7 @@ const HorizontalScroller = ({ children, className = "", scrollByPx }: Props) => 
         </>
       )}
 
-      {/* Left arrow - appears only when hovering and when left scroll is possible */}
+      {/* left arrow appears only when hovering and when left scroll is possible */}
       <button
         aria-hidden={!canScrollLeft}
         onClick={() => doScroll("left")}
@@ -121,7 +120,7 @@ const HorizontalScroller = ({ children, className = "", scrollByPx }: Props) => 
         </svg>
       </button>
 
-      {/* Right arrow */}
+      {/* same for right */}
       <button
         aria-hidden={!canScrollRight}
         onClick={() => doScroll("right")}

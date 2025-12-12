@@ -1,27 +1,68 @@
-import React from "react";
+import React, { useState } from "react";
+import play from "../../assets/spotifyButtons/play.png";
 
 interface PlaylistCardProps {
   artUrl: string;
   name: string;
   madeby: string;
-  onClick?: () => void;
+  onClick?: () => void; // open playlist
+  onPlay?: () => void; // play playlist
 }
 
-const PlaylistCard: React.FC<PlaylistCardProps> = ({ artUrl, name, madeby, onClick }) => {
+const PlaylistCard: React.FC<PlaylistCardProps> = ({
+  artUrl,
+  name,
+  madeby,
+  onClick,
+  onPlay
+}) => {
+  const [hovered, setHovered] = useState(false);
+
   return (
-    <div 
+    <div
+      className="
+        relative w-full max-w-md p-3 rounded-xl 
+        backdrop-blur-2xl transition hover:bg-white/6 
+        border border-gray-700 cursor-pointer flex items-center gap-3
+      "
+      role="button"
+      tabIndex={0}
       onClick={onClick}
-      className="flex items-center w-full max-w-md p-4 rounded-xl backdrop-blur-2xl shadow-md transition hover:bg-white/20 border-gray-700 border-2 cursor-pointer"
+      onKeyDown={(e) => { if(e.key === 'Enter' || e.key === ' ') onClick?.(); }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      aria-label={`Open ${name}`}
     >
-      <img
-        src={artUrl}
-        alt={name}
-        className="w-10 h-10 rounded-lg object-cover mr-4 shadow"
-      />
-      <div className="flex flex-col justify-center ">
-        <span className="text-lg font-semibold text-white drop-shadow-sm">{name}</span>
-        <span className="text-sm text-gray-200 drop-shadow-sm">{madeby}</span>
+      <div className="relative w-14 h-14 flex-shrink-0 rounded-lg overflow-hidden shadow">
+        <img
+          src={artUrl}
+          alt={name}
+          className="w-full h-full object-cover"
+        />
+
       </div>
+
+      <div className="flex flex-col justify-center min-w-0">
+        <div className="text-pretty font-semibold text-white truncate">{name}</div>
+        <div className="text-sm text-gray-300 truncate">{madeby}</div>
+      </div>
+
+        <button
+          className={`
+            absolute right-3 
+            bg-gray-700/40 backdrop-blur-sm p-3 rounded-2xl
+            transition-all duration-200 transform
+            ${hovered ? "opacity-100 scale-100" : "opacity-0 scale-95"}
+            pointer-events-auto
+          `}
+          onClick={(e) => { 
+            e.stopPropagation(); 
+            onPlay?.(); 
+          }}
+          aria-label={`Play ${name}`}
+        >
+          <img src={play} alt="Play" className="w-5 h-5" />
+        </button>
     </div>
   );
 };

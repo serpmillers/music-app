@@ -1,3 +1,5 @@
+// will implement into the playlist page later
+
 type GenreCardProps = {
   name: string;
 }

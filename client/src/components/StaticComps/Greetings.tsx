@@ -1,3 +1,5 @@
+// have conflicts about this
+
 import settings from "../../assets/spotifyButtons/gear.png";
 import right from "../../assets/spotifyButtons/right_arrow.png";
 import left from "../../assets/spotifyButtons/left_arrow.png";

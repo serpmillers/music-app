@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { usePomodoroSettings } from "../../context/PomodoroSettingsContext";
 
 type AppearanceMode = "system" | "dark" | "light" | "custom";
 
@@ -7,12 +8,47 @@ interface CustomTheme {
   accentColor: string;
 }
 
-const Settings = () => {
+type SettingNumberProps = {
+  label: string;
+  value: number;
+  onChange: (v: number) => void;
+  min?: number;
+  step?: number;
+};
+
+const SettingNumber: React.FC<SettingNumberProps> = ({label, value, onChange, min=1, step=1}) => (
+  <div className="flex flex-col">
+    <label className="text-gray-300 text-sm mb-1">{label}</label>
+    <input
+      type="number"
+      value={value}
+      min={min}
+      step={step}
+      className="bg-gray-800 text-white p-2 rounded-lg"
+      onChange={(e) => {
+        const v = Number(e.target.value);
+        if (!Number.isNaN(v)) onChange(v);
+      }}
+    />
+  </div>
+);
+
+const Settings: React.FC = () => {
   const [appearanceMode, setAppearanceMode] = useState<AppearanceMode>("system");
   const [customTheme, setCustomTheme] = useState<CustomTheme>({
     wallpaper: null,
     accentColor: "#3b82f6",
   });
+
+  // Pomodoro settings from context
+  const {
+    pomodoro,
+    shortBreak,
+    longBreak,
+    cyclesBeforeLongBreak,
+    playSound,
+    setSettings,
+  } = usePomodoroSettings();
 
   const handleWallpaperUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -28,7 +64,6 @@ const Settings = () => {
 
   const detectAccentColor = () => {
     // Placeholder for accent color detection algorithm
-    // This would analyze the wallpaper image and suggest complementary colors
     const suggestedColors = ["#3b82f6", "#8b5cf6", "#ec4899", "#f59e0b"];
     const randomColor = suggestedColors[Math.floor(Math.random() * suggestedColors.length)];
     setCustomTheme((prev) => ({ ...prev, accentColor: randomColor }));
@@ -43,13 +78,9 @@ const Settings = () => {
 
         {/* Appearance Section */}
         <div className="flex flex-col gap-6">
-          {/* Section Title */}
           <div>
             <h2 className="text-2xl font-bold text-white mb-6">Appearance</h2>
-
-            {/* Mode Options */}
             <div className="flex flex-col gap-4">
-              {/* System Default */}
               <button
                 onClick={() => setAppearanceMode("system")}
                 className={`flex items-center gap-4 px-6 py-4 rounded-lg border-2 transition-all duration-300 ${
@@ -58,7 +89,8 @@ const Settings = () => {
                     : "border-gray-700 bg-gray-800/50 hover:border-gray-600"
                 }`}
               >
-                <div className="w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0"
+                <div
+                  className="w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0"
                   style={{
                     borderColor: appearanceMode === "system" ? "#3b82f6" : "#9ca3af",
                   }}
@@ -73,7 +105,6 @@ const Settings = () => {
                 </div>
               </button>
 
-              {/* Dark Mode */}
               <button
                 onClick={() => setAppearanceMode("dark")}
                 className={`flex items-center gap-4 px-6 py-4 rounded-lg border-2 transition-all duration-300 ${
@@ -82,7 +113,8 @@ const Settings = () => {
                     : "border-gray-700 bg-gray-800/50 hover:border-gray-600"
                 }`}
               >
-                <div className="w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0"
+                <div
+                  className="w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0"
                   style={{
                     borderColor: appearanceMode === "dark" ? "#3b82f6" : "#9ca3af",
                   }}
@@ -97,7 +129,6 @@ const Settings = () => {
                 </div>
               </button>
 
-              {/* Light Mode */}
               <button
                 onClick={() => setAppearanceMode("light")}
                 className={`flex items-center gap-4 px-6 py-4 rounded-lg border-2 transition-all duration-300 ${
@@ -106,7 +137,8 @@ const Settings = () => {
                     : "border-gray-700 bg-gray-800/50 hover:border-gray-600"
                 }`}
               >
-                <div className="w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0"
+                <div
+                  className="w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0"
                   style={{
                     borderColor: appearanceMode === "light" ? "#3b82f6" : "#9ca3af",
                   }}
@@ -121,7 +153,6 @@ const Settings = () => {
                 </div>
               </button>
 
-              {/* Custom Mode */}
               <button
                 onClick={() => setAppearanceMode("custom")}
                 className={`flex items-center gap-4 px-6 py-4 rounded-lg border-2 transition-all duration-300 ${
@@ -130,7 +161,8 @@ const Settings = () => {
                     : "border-gray-700 bg-gray-800/50 hover:border-gray-600"
                 }`}
               >
-                <div className="w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0"
+                <div
+                  className="w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0"
                   style={{
                     borderColor: appearanceMode === "custom" ? "#3b82f6" : "#9ca3af",
                   }}
@@ -145,10 +177,8 @@ const Settings = () => {
                 </div>
               </button>
 
-              {/* Custom Mode Settings */}
               {appearanceMode === "custom" && (
                 <div className="mt-6 ml-10 flex flex-col gap-6 pt-6 border-t border-gray-700">
-                  {/* Wallpaper Upload */}
                   <div className="flex flex-col gap-3">
                     <label className="text-sm font-semibold text-gray-300 uppercase tracking-wider">
                       Wallpaper
@@ -171,7 +201,6 @@ const Settings = () => {
                       </label>
                     </div>
 
-                    {/* Wallpaper Preview */}
                     {customTheme.wallpaper && (
                       <div className="w-full h-32 rounded-lg overflow-hidden border border-gray-700">
                         <img
@@ -183,7 +212,6 @@ const Settings = () => {
                     )}
                   </div>
 
-                  {/* Accent Color */}
                   <div className="flex flex-col gap-3">
                     <label className="text-sm font-semibold text-gray-300 uppercase tracking-wider">
                       Accent Color
@@ -208,7 +236,6 @@ const Settings = () => {
                     </div>
                   </div>
 
-                  {/* Auto-Detect Button */}
                   {customTheme.wallpaper && (
                     <button
                       onClick={detectAccentColor}
@@ -218,7 +245,6 @@ const Settings = () => {
                     </button>
                   )}
 
-                  {/* Preview */}
                   <div className="mt-4 p-4 rounded-lg border border-gray-700">
                     <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">
                       Preview
@@ -235,6 +261,64 @@ const Settings = () => {
                 </div>
               )}
             </div>
+          </div>
+        </div>
+
+        {/* Pomodoro Section */}
+        <div className="mt-10">
+          <h2 className="text-2xl font-bold text-white mb-4">Pomodoro</h2>
+
+          <div className="flex flex-col gap-4">
+            <SettingNumber
+              label="Pomodoro Duration (minutes)"
+              value={Math.round(pomodoro / 60)}
+              onChange={(v) => setSettings({pomodoro: v * 60})}
+              min={1}
+            />
+
+            <SettingNumber
+              label="Short Break (minutes)"
+              value={Math.round(shortBreak / 60)}
+              onChange={(v) => setSettings({shortBreak: v * 60})}
+              min={1}
+            />
+
+            <SettingNumber
+              label="Long Break (minutes)"
+              value={Math.round(longBreak / 60)}
+              onChange={(v) => setSettings({longBreak: v * 60})}
+              min={1}
+            />
+
+            <SettingNumber
+              label="Cycles Before Long Break"
+              value={cyclesBeforeLongBreak}
+              onChange={(v) => setSettings({cyclesBeforeLongBreak: Math.max(1, Math.floor(v))})}
+              min={1}
+            />
+
+            <label className="flex items-center gap-3 text-white mt-4">
+              <input
+                type="checkbox"
+                checked={!!playSound}
+                onChange={(e) => setSettings({playSound: e.target.checked})}
+              />
+              Play Bell Sound on Phase Change
+            </label>
+
+            <button
+              className="mt-2 px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600"
+              onClick={() => {
+                try {
+                  new Audio("/bell.mp3").play();
+                } catch (err) {
+                  // graceful fallback
+                  console.warn("Bell test failed", err);
+                }
+              }}
+            >
+              Test Bell Sound
+            </button>
           </div>
         </div>
       </div>

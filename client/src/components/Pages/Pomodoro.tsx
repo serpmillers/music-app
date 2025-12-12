@@ -1,38 +1,52 @@
 import React, { useState, useEffect, useRef } from "react";
-
-const DEFAULTS = {
-  pomodoro: 25 * 60,
-  shortBreak: 5 * 60,
-  longBreak: 15 * 60,
-  cyclesBeforeLongBreak: 4,
-};
+import { usePomodoroSettings } from "../../context/PomodoroSettingsContext";
 
 const Pomodoro = () => {
-  const [pomodoroTime] = useState(DEFAULTS.pomodoro);
-  const [shortBreakTime] = useState(DEFAULTS.shortBreak);
-  const [longBreakTime] = useState(DEFAULTS.longBreak);
-  const [cyclesBeforeLongBreak] = useState(DEFAULTS.cyclesBeforeLongBreak);
+  const {
+    pomodoro,
+    shortBreak,
+    longBreak,
+    cyclesBeforeLongBreak,
+    playSound,
+  } = usePomodoroSettings();
 
+  const pomodoroTime = pomodoro;
+  const shortBreakTime = shortBreak;
+  const longBreakTime = longBreak;
+
+  // stepIndex represents the current step in the sequence:
+  // 0 -> pomodoro, 1 -> short, 2 -> pomodoro, ... final index -> long
+  const [stepIndex, setStepIndex] = useState(0);
   const [secondsLeft, setSecondsLeft] = useState(pomodoroTime);
   const [isRunning, setIsRunning] = useState(false);
   const [mode, setMode] = useState<"pomodoro" | "short" | "long">("pomodoro");
-  const [cycle, setCycle] = useState(0);
-  const [currentTask, setCurrentTask] = useState<any>(null);
+  const [currentTask, setCurrentTask] = useState<any>(null); // will see if I'll use task info inside pomodoro or not
 
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
+  const modeForStep = (idx: number) => {
+    if (idx === cyclesBeforeLongBreak - 1) return "long";
+    return idx % 2 === 0 ? "pomodoro" : "short";
+  };
+
+  const durationForMode = (m: "pomodoro" | "short" | "long") =>
+    m === "pomodoro" ? pomodoroTime : m === "short" ? shortBreakTime : longBreakTime;
+
+  // Keep mode & seconds synced to stepIndex and durations
   useEffect(() => {
-    if (mode === "pomodoro") setSecondsLeft(pomodoroTime);
-    if (mode === "short") setSecondsLeft(shortBreakTime);
-    if (mode === "long") setSecondsLeft(longBreakTime);
+    const newMode = modeForStep(stepIndex);
+    setMode(newMode);
+    setSecondsLeft(durationForMode(newMode));
     setIsRunning(false);
-  }, [mode, pomodoroTime, shortBreakTime, longBreakTime]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [stepIndex, pomodoroTime, shortBreakTime, longBreakTime, cyclesBeforeLongBreak]);
 
   useEffect(() => {
     if (isRunning) {
       intervalRef.current = setInterval(() => {
         setSecondsLeft((prev) => {
           if (prev <= 1) {
+            // When time ends, advance step but don't auto-start
             handleTimerEnd();
             return 0;
           }
@@ -45,18 +59,18 @@ const Pomodoro = () => {
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
-    // eslint-disable-next-line
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isRunning]);
 
-  // Listen for pomodoro:start event from TaskList
+  // Listen for external pomodoro:start event
   useEffect(() => {
     const handlePomodoroStart = (event: any) => {
       const task = event.detail?.task;
       if (task) {
         setCurrentTask(task);
-        setMode("pomodoro");
+        // start from step 0 (pomodoro)
+        setStepIndex(0);
         setIsRunning(true);
-        setCycle(0);
       }
     };
 
@@ -67,26 +81,37 @@ const Pomodoro = () => {
   }, []);
 
   const handleTimerEnd = () => {
-  setIsRunning(false);
-  if (mode === "pomodoro") {
-    // Clear task when pomodoro finishes
-    setCurrentTask(null);
-    if (cycle + 1 === cyclesBeforeLongBreak) {
-      setMode("long");
-      setCycle(0);
-    } else {
-      setMode("short");
-      setCycle((c) => c + 1);
+    // stop running (require manual resume, will change later)
+    setIsRunning(true);
+
+    if (playSound) {
+      try {
+        new Audio("/bell.mp3").play(); // later.
+      } catch (err) {
+        console.warn("Bell play failed", err);
+      }
     }
-  } else {
-    setMode("pomodoro");
-  }
-};
+
+    // clear task when a pomodoro step finishes (I was expeerimenting, thought I'd let it be for now)
+    if (mode === "pomodoro") {
+      setCurrentTask(null);
+    }
+
+    // Advance to next step (wrap around)
+    const next = (stepIndex + 1) % Math.max(1, cyclesBeforeLongBreak);
+    setStepIndex(next);
+    // mode & secondsLeft will be updated by the effect watching stepIndex
+  };
 
   const resetTimer = () => {
-    if (mode === "pomodoro") setSecondsLeft(pomodoroTime);
-    if (mode === "short") setSecondsLeft(shortBreakTime);
-    if (mode === "long") setSecondsLeft(longBreakTime);
+    // reset current step's duration and pause
+    setSecondsLeft(durationForMode(modeForStep(stepIndex)));
+    setIsRunning(false);
+  };
+
+  // clicking a dot will now jump to that step and pause for preview
+  const handleDotClick = (idx: number) => {
+    setStepIndex(idx);
     setIsRunning(false);
   };
 
@@ -103,12 +128,14 @@ const Pomodoro = () => {
           {mode === "short" && "Short Break"}
           {mode === "long" && "Long Break"}
         </span>
+
         <div className="text-5xl font-mono mb-4 text-white">
           {minutes}:{seconds}
         </div>
+
         <div className="flex gap-4 mb-4">
           <button
-            className="cursor-pointer rounded-2xl px-4 py-2 text-white bg-gray-900 hover:bg-gray-800 transition-all duration-300 hover:scale-105 active:scale-95"
+            className="cursor-pointer rounded-2xl px-4 py-2 text-white bg-gray-900 hover:bg-gray-800 transition-all ring-2 ring-gray-700 duration-300 hover:scale-105 active:scale-95"
             onClick={() => setIsRunning((prev) => !prev)}
           >
             {secondsLeft === pomodoroTime && !isRunning && mode === "pomodoro"
@@ -117,29 +144,29 @@ const Pomodoro = () => {
               ? "Pause"
               : "Resume"}
           </button>
+
           <button
-            className="cursor-pointer rounded-2xl px-4 py-2 text-white bg-gray-900 hover:bg-gray-800 transition-all duration-300 hover:scale-105 active:scale-95"
+            className="cursor-pointer rounded-2xl px-4 py-2 text-white bg-gray-900 hover:bg-gray-800 ring-2 ring-gray-700 transition-all duration-300 hover:scale-105 active:scale-95"
             onClick={resetTimer}
           >
             Reset
           </button>
         </div>
-        {/* Dots for cycles */}
+
         <div className="flex gap-2 mt-2">
-          {Array.from({ length: cyclesBeforeLongBreak }).map((_, idx) => (
-            <span
-              key={idx}
-              className={`w-3 h-3 rounded-full inline-block ${
-                idx < cycle ? "bg-gray-300" : "bg-gray-500"
-              }`}
-            ></span>
-          ))}
-        </div>
-        <div className="mt-2 text-xs text-gray-300">
-          {mode === "pomodoro" &&
-            `Cycle ${cycle + 1} of ${cyclesBeforeLongBreak}`}
-          {mode === "short" && "Short Break"}
-          {mode === "long" && "Long Break"}
+          {Array.from({ length: Math.max(1, cyclesBeforeLongBreak) }).map((_, idx) => {
+            const isActive = idx === stepIndex;
+            return (
+              <button
+                key={idx}
+                onClick={() => handleDotClick(idx)}
+                aria-label={`Step ${idx + 1}`}
+                className={`w-3 h-3 rounded-full inline-block transition-transform transform ${
+                  isActive ? "bg-gray-300 scale-125" : "bg-gray-500 hover:scale-110"
+                }`}
+              />
+            );
+          })}
         </div>
       </div>
     </div>

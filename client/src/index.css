@@ -21,6 +21,12 @@
   }
 }
 
+@keyframes popIn {
+  0% { opacity: 0; transform: translateY(6px) scale(0.98); }
+  60% { opacity: 1; transform: translateY(-2px) scale(1.02); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
 body {
   margin: 0;
   padding: 0;
@@ -40,6 +46,21 @@ body {
 
 .animate-slide-up {
   animation: slideInUp 0.4s ease-out;
+}
+
+.animate-pop-in {
+  animation: popIn 360ms cubic-bezier(.2,.9,.3,1) forwards;
+}
+
+/* Optional: reduce motion support */
+@media (prefers-reduced-motion: reduce){
+  .animate-pop-in,
+  .animate-fade-in,
+  .animate-slide-up {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
 }
 
 ::-webkit-scrollbar-button {

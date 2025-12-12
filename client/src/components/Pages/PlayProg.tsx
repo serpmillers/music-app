@@ -1,49 +1,55 @@
+// import { useState } from "react";
+import { usePlayer } from "../../context/PlayerContext";
 import play from "../../assets/spotifyButtons/play.png";
 import pause from "../../assets/spotifyButtons/pause.png";
 import prev from "../../assets/spotifyButtons/prev.png";
 import next from "../../assets/spotifyButtons/next.png";
-import { useState } from "react";
 
 const PlayProg = () => {
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [progress, setProgress] = useState(30); // seconds
-  const [isShuffle, setIsShuffle] = useState(false);
-  const [isRandom, setIsRandom] = useState(false);
-  const song = {
+  // pull player state/actions from the central provider, which will be connected to the backend
+  const { currentTrack, isPlaying, togglePlay, seek, progress, next: playerNext, prev: playerPrev, isShuffle, isLooped, toggleShuffle, toggleLoop } = usePlayer();
+
+  // keep the same fallback placeholder exactly like before
+  const song = currentTrack ?? {
+    id: "__fallback",
     duration: 120, //seconds
     name: "Song Title",
     artist: "Artist Name",
     art: "https://images.squarespace-cdn.com/content/v1/5ee52f7d9edc8a7ee635591a/8df50655-6b68-460e-ad6c-5230001b9d5a/240404+-+063944+-+001.jpg"
   };
 
+  // support either artUrl (from context) or art (debug art)
+  const artUrl = (song as any).artUrl ?? (song as any).art ?? "";
+
   // Calculate percentage for the filled part
-  const percent = (progress / song.duration) * 100;
-  // The '2%' below controls the softness of the transition
-  const transitionWidth = 2; // percent
+  const dur = song.duration || 1;
+  const pct = ((progress || 0) / dur) * 100;
+  const transitionWidth = .6; // percent (keeps same softness)
 
   return (
-    <div className="flex-1 flex overflow-hidden rounded-2xl m-1 relative group border-gray-700 border-2">
+    <div className="flex-1 flex overflow-hidden rounded-2xl m-1 relative group border-gray-700 border-2 animate-fade-in">
       
-      {/* Album Art Background - full coverage */}
-      <img
-        src={song.art}
-        alt="Song Art"
-        className="absolute inset-0 w-full h-full object-cover transition-all duration-300 group-hover:blur-sm"
-      />
+      {/* Album Art as the background */}
+      {artUrl && (
+        <img
+          src={artUrl}
+          alt={song.name ?? ""}
+          className="absolute inset-0 w-full h-full object-cover transition-all duration-300 group-hover:blur-sm"
+        />
+      )}
       
-      {/* Dark overlay vignette from bottom */}
+      {/* Dark overlay vignette from bottom, will add a function to make it more interactive later */}
       <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent pointer-events-none" />
       
-      {/* Full blur overlay on hover */}
+      {/* Full blur overlay on hover, this stays */}
       <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300 pointer-events-none" />
       
-      {/* Player controls centered in the middle */}
       <div className="absolute inset-0 flex items-center justify-center group">
-        {/* Controls overlay, visible on hover */}
+        {/* Controls player overlay, visible on hover */}
         <div className="flex items-center rounded-2xl justify-center backdrop-blur-[5px] bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300 p-6 gap-4">
           <button
             className={`transition-all duration-200 hover:scale-125 active:scale-90 ${isShuffle ? 'text-blue-400' : 'text-white'}`}
-            onClick={() => setIsShuffle(!isShuffle)}
+            onClick={() => toggleShuffle()}
             aria-label="Shuffle"
             title="Shuffle"
           >
@@ -54,31 +60,33 @@ const PlayProg = () => {
 
           <button
             className="mx-2 text-white text-2xl transition-all duration-200 hover:scale-125 active:scale-90"
-            onClick={() => {/* prev logic */}}
+            onClick={() => playerPrev()}
             aria-label="Previous"
           >
             <img src={prev} alt="prev" className="w-5 h-5 justify-center items-center " />
           </button>
+
           <button
             className="mx-2 text-white text-4xl transition-all duration-200 hover:scale-125 active:scale-90"
-            onClick={() => setIsPlaying(p => !p)}
+            onClick={() => togglePlay()}
             aria-label={isPlaying ? "Pause" : "Play"}
           >
             {isPlaying ? <img src={pause} alt="Pause" className="w-7 h-7 justify-center items-center " /> : <img src={play} alt="Play" className="w-7 h-7 justify-center items-center " />}
           </button>
+
           <button
             className="mx-2 text-white text-2xl transition-all duration-200 hover:scale-125 active:scale-90"
-            onClick={() => {/* next logic */}}
+            onClick={() => playerNext()}
             aria-label="Next"
           >
             <img src={next} alt="Next" className="w-5 h-5 justify-center items-center " />
           </button>
 
           <button
-            className={`transition-all duration-200 hover:scale-125 active:scale-90 ${isRandom ? 'text-green-400' : 'text-white'}`}
-            onClick={() => setIsRandom(!isRandom)}
-            aria-label="Random"
-            title="Random"
+            className={`transition-all duration-200 hover:scale-125 active:scale-90 ${isLooped ? 'text-green-400' : 'text-white'}`}
+            onClick={() => toggleLoop()}
+            aria-label="Loop"
+            title="Loop"
           >
             <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
               <path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z" />
@@ -94,30 +102,31 @@ const PlayProg = () => {
           <input
             type="range"
             min={0}
-            max={song.duration}
-            value={progress}
-            onChange={e => setProgress(Number(e.target.value))}
+            max={dur}
+            value={progress || 0}
+            onChange={e => seek(Number(e.target.value))}
             className="w-full h-1 bg-transparent cursor-pointer custom-range"
             style={{
               background: `
                 linear-gradient(
                   to right,
                   white 0%,
-                  white ${Math.max(percent - transitionWidth / 2, 0)}%,
-                  #bbb ${percent}%,
-                  #888 ${percent + transitionWidth / 2}%,
+                  white ${Math.max(pct - transitionWidth / 2, 0)}%,
+                  #bbb ${pct}%,
+                  #888 ${Math.min(pct + transitionWidth / 2,100)}%,
                   #444 100%
                 )
               `
             }}
           />
           <div className="flex justify-between w-full text-xs text-gray-300 mt-1">
-            <span>{Math.floor(progress / 60)}:{String(progress % 60).padStart(2, "0")}</span>
-            <span>{Math.floor(song.duration / 60)}:{String(song.duration % 60).padStart(2, "0")}</span>
+            <span>{Math.floor((progress || 0) / 60)}:{String(Math.floor((progress || 0) % 60)).padStart(2, "0")}</span>
+            <span>{Math.floor(dur / 60)}:{String(Math.floor(dur % 60)).padStart(2, "0")}</span>
           </div>
         </div>
       </div>
-      {/* Custom CSS for sleek progress bar */}
+
+      {/* Custom CSS for sleek progress bar, will add the pointer later */}
       <style>
         {`
           input[type="range"].custom-range {
